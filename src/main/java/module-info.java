@@ -5,6 +5,7 @@ module br.com.getfrete.getfrete {
     requires org.postgresql.jdbc;
     requires AnimateFX;
     requires com.jfoenix;
+    requires java.desktop;
 
     opens br.com.getfrete.getfrete to javafx.fxml;
     exports br.com.getfrete.getfrete;

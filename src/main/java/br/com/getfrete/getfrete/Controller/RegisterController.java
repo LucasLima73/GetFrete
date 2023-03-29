@@ -1,23 +1,20 @@
 package br.com.getfrete.getfrete.Controller;
 
 import br.com.getfrete.getfrete.Dao.CaminhoneiroDAO;
-import br.com.getfrete.getfrete.Dao.Conexao;
 import br.com.getfrete.getfrete.HelloApplication;
 import br.com.getfrete.getfrete.Model.CaminhoneiroModel;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.jfoenix.validation.RequiredFieldValidator;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 
 import java.io.IOException;
-import java.net.URL;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.text.ParseException;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.jfoenix.controls.JFXTextField;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,9 +22,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
+import javax.swing.text.MaskFormatter;
 
 public class RegisterController {
+    public RegisterController(){}
+
 
     @FXML
     private void switchToDriver() throws IOException {
@@ -98,6 +97,30 @@ public class RegisterController {
 
     @FXML
     private Label tPlaca;
+    public void initialize() throws ParseException {
+        Platform.runLater(() -> {
+            Pattern pattern = Pattern.compile("(\\d{0,3})(\\d{0,3})(\\d{0,3})(\\d{0,2})");
+            UnaryOperator<TextFormatter.Change> filter = c -> {
+                String newText = c.getControlNewText();
+                if (newText.isEmpty() || pattern.matcher(newText).matches()) {
+                    return c;
+                } else {
+                    return null;
+                }
+            };
+            TextFormatter<String> formatter = new TextFormatter<>(filter);
+            formatter.setValue("###.###.###");
+            formatter.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue.isEmpty()) {
+                    txtCpf.setText("");
+                } else {
+                    txtCpf.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            });
+            txtCpf.setTextFormatter(formatter);
+        });
+
+    }
 
     @FXML
     void Login() throws SQLException, ClassNotFoundException {
@@ -225,15 +248,6 @@ public class RegisterController {
     }
 
     void showConfirmation() throws IOException {
-        if (cbPossui.isSelected()) {
-            Parent root = FXMLLoader.load(getClass().getResource("/br/com/getfrete/getfrete/dialog.fxml"));
-            Scene scene = new Scene(root);
-            Stage primaryStage = new Stage();
-            primaryStage.setTitle("Cadastre seu caminhão");
-            primaryStage.setScene(scene);
-            primaryStage.initModality(Modality.WINDOW_MODAL);
-            primaryStage.showAndWait();
-        }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Conta Criada com sucesso");

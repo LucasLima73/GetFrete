@@ -12,11 +12,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TextFieldSkin;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 public class LoginController {
     @FXML
@@ -33,6 +36,7 @@ public class LoginController {
 
     @FXML
     private TextField tvUser;
+
 
     @FXML
     void Recovery() {
@@ -114,7 +118,9 @@ public class LoginController {
                  ResultSet resultSet = pst.executeQuery();
 
                  if(resultSet.next()){
+                     pst.close();
                      switchToDash();
+
                  }
 
                 } catch (SQLException e) {

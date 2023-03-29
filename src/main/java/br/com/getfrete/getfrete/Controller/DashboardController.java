@@ -1,6 +1,9 @@
 package br.com.getfrete.getfrete.Controller;
 
+import br.com.getfrete.getfrete.Dao.CaminhoneiroDAO;
 import br.com.getfrete.getfrete.Dao.Conexao;
+import br.com.getfrete.getfrete.HelloApplication;
+import br.com.getfrete.getfrete.Model.CaminhoneiroModel;
 import br.com.getfrete.getfrete.Model.LoginModel;
 import com.jfoenix.controls.JFXButton;
 import javafx.event.ActionEvent;
@@ -9,10 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -108,45 +108,48 @@ public class DashboardController implements Initializable {
     void btnProfile(ActionEvent event) throws IOException {
         AnchorPane view = (AnchorPane)FXMLLoader.load(getClass().getResource("/br/com/getfrete/getfrete/profile.fxml"));
         borderpane.setCenter(view);
+
+
     }
+    Stage primaryStage = new Stage();
     @FXML
-    void btnEdit(MouseEvent event) throws IOException {
+    void btnEdit() throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/br/com/getfrete/getfrete/profileEdit.fxml"));
         Scene scene = new Scene(root);
-        Stage primaryStage = new Stage();
         primaryStage.setTitle("Edite seu perfil");
         primaryStage.setScene(scene);
         primaryStage.initModality(Modality.WINDOW_MODAL);
-        primaryStage.showAndWait();
-    }
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        Label tvNomeUser = new Label();
-        String user = data.getUserName();
-        Conexao connection = new Conexao();
-        try {
-            PreparedStatement stmt = connection.getConnection().prepareStatement("SELECT * FROM caminhoneiro where cpf = ?");
-            stmt.setInt(1, Integer.parseInt(user));
-            ResultSet rs = stmt.executeQuery();
-
-            String nome = null;
-
-            if(rs.next()){
-                nome = rs.getString("nome");
-
-                tvNomeUser.setText(nome);
-
-            }
-            stmt.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        primaryStage.show();
 
     }
     @FXML
-    void ExcluirConta(ActionEvent event) {
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        consultaBanco();
+
+
+
+    }
+    @FXML
+    void ExcluirConta() {
+            CaminhoneiroDAO dao = new CaminhoneiroDAO();
+            try {
+                dao.remover(new CaminhoneiroModel(String.valueOf(data.getUserName())));
+                showDeleteConfirmation();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
+    private void showDeleteConfirmation() throws IOException {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Conta deletada com sucesso");
+        alert.setContentText("Foi bom te ver por aqui, até a próxima");
+        alert.showAndWait();
+
+
+            HelloApplication.setRoot("loginView");
+
+            primaryStage.close();
 
     }
 
@@ -154,8 +157,37 @@ public class DashboardController implements Initializable {
     void SalvarEdit(ActionEvent event) {
 
     }
+    @FXML
+    private Label txtAlteraNome;
+
+    String consultaBanco(){
+        tvNomeUser = new Label();
+        Label txtAlteraNome = new Label();
+        String user = data.getUserName();
+        Conexao connection = new Conexao();
+        try {
+            PreparedStatement stmt = connection.getConnection().prepareStatement("SELECT * FROM caminhoneiro where cpf = ?");
+            stmt.setInt(1, Integer.parseInt(String.valueOf(user)));
+            ResultSet rs = stmt.executeQuery();
 
 
+            String nome = null;
+
+            if(rs.next()){
+                nome = rs.getString("nome");
+
+                tvNomeUser.setText(nome);
+                txtAlteraNome.setText(nome);
+                System.out.println(nome);
+            }
+            stmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
+    }
 }
 
 

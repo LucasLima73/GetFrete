@@ -1,6 +1,7 @@
 package br.com.getfrete.getfrete.Dao;
 
 import br.com.getfrete.getfrete.Model.CaminhoneiroModel;
+import br.com.getfrete.getfrete.Model.LoginModel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CaminhoneiroDAO implements GenericoDAO<CaminhoneiroModel>{
-
+    LoginModel data = LoginModel.getInstance();
     @Override
     public List<CaminhoneiroModel> listar() {
         List<CaminhoneiroModel> caminhoneiros = new ArrayList<>();
@@ -105,15 +106,19 @@ public class CaminhoneiroDAO implements GenericoDAO<CaminhoneiroModel>{
         try {
             connection = Conexao.getInstance().getConnection();
             PreparedStatement pStatement = connection.prepareStatement(sql);
-            pStatement.setInt(1, caminhoneiroModel.getCPF());
+            pStatement.setInt(1, Integer.valueOf(data.getUserName()));
             pStatement.execute();
+            connection.close();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(CaminhoneiroDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(CaminhoneiroDAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
+                if(connection != null){
+
                 connection.close();
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(CaminhoneiroDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
